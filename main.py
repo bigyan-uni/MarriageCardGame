@@ -13,13 +13,25 @@ hand = {"1H": 0, "2H": 0, "3H": 0, "4H": 0, "5H": 0, "6H": 0, "7H": 0, "8H": 0, 
         "11C": 0, "12C": 0, "13C": 0, "1D": 0, "2D": 0, "3D": 0, "4D": 0, "5D": 0, "6D": 0, "7D": 0, "8D": 0, "9D": 0,
         "10D": 0, "11D": 0, "12D": 0, "13D": 0, "JOKER": 0, "MASTER-JOKER": 0}
 
+top_card = ""
+
 
 # Main function that displays Menus and calls other modules.
 def run():
     tui.title()
     process.make_hand(hand, cards)
-    while True:
-        pass
+
+    # Players now have a hand of 21
+    game_over = False
+    turn_number = 1
+    players, my_turn = tui.player_num()
+    while game_over is False:
+        if turn_number == my_turn:  # My first turn
+            process.my_first_move()
+        if turn_number % players == my_turn and turn_number > my_turn:  # My turns after this
+            process.my_move()
+        else:  # Other's turn to discard cards
+            process.others_move()
 
 
 if __name__ == "__main__":

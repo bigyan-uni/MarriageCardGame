@@ -63,3 +63,18 @@ def make_hand(hand: dict, cards: dict):
                 i += 1
             else:
                 tui.error("Too many cards of same type.")
+
+
+# Function to make my first move
+def my_first_move():
+    pass
+
+
+# Function to make my next moves
+def my_move():
+    pass
+
+
+# Function to make other's move
+def others_move():
+    pass

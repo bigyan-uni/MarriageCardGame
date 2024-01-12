@@ -16,6 +16,14 @@ def add_card():
     return process.standard(card)
 
 
+# INTRO QUESTIONS
+# Returns Number of Players
+def player_num():
+    players = int(input("How many players are there?"))
+    turn = int(input("Which turn do you play?"))
+    return players, turn
+
+
 # DISPLAYS CARDS IN HAND
 def see_hand(hand: dict):
     for card, num in hand.items():
