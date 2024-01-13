@@ -35,12 +35,15 @@ def valid(card: str) -> bool:
 
 # Function to return number of specific card. Returns int.
 def card_num(card: str, cards: dict) -> int:
+    card = standard(card)
     num = cards[card]
     return num
 
 
 # Function that decrements number of specific card. Returns nothing.
 def discard(card: str, cards: dict):
+    card = standard(card)
+    card = standard(card)
     if card_num(card, cards) > 0:
         cards[card] -= 1
 
@@ -57,35 +60,45 @@ def break_hand(hand: dict):
     club_list = []
     diamond_list = []
     for card, num in hand.items():
-        card_number = int(card[:-1])
-        if card[-1:] == "H":
-            heart_list.append(card_number)
-            if card_number == 1:
-                heart_list.append(14)
-        elif card[-1:] == "S":
-            spade_list.append(card_number)
-            if card_number == 1:
-                heart_list.append(14)
-        elif card[-1:] == "C":
-            club_list.append(card_number)
-            if card_number == 1:
-                heart_list.append(14)
-        elif card[-1:] == "D":
-            diamond_list.append(card_number)
-            if card_number == 1:
-                heart_list.append(14)
+        if num > 0:
+            card_number = int(card[:-1])
+            if card[-1:] == "H":
+                heart_list.append(card_number)
+                if card_number == 1:
+                    heart_list.append(14)
+            elif card[-1:] == "S":
+                spade_list.append(card_number)
+                if card_number == 1:
+                    spade_list.append(14)
+            elif card[-1:] == "C":
+                club_list.append(card_number)
+                if card_number == 1:
+                    club_list.append(14)
+            elif card[-1:] == "D":
+                diamond_list.append(card_number)
+                if card_number == 1:
+                    diamond_list.append(14)
     return [heart_list, spade_list, club_list, diamond_list]
 
 
 # Function that reassembles wanted list of cards with suites
-def create_wanted_list(wanted: list) -> list:
+def create_wanted_list(wanted: list, pure: bool) -> list:
     wanted_list = []
-    for entry in wanted:
-        suite_name = entry[0]
-        suite_wanted = entry[1]
-        for num in suite_wanted:
-            wanted_card = str(num) + suite_name
-            wanted_list.append(wanted_card)
+    if pure is True:
+        for suite in wanted:
+            suite_name = suite[0]
+            suite_wanted = suite[1]
+            for numbers in suite_wanted:
+                for number in numbers:
+                    wanted_card = str(number) + suite_name
+                    wanted_list.append(wanted_card)
+    elif pure is False:
+        for suite in wanted:
+            suite_name = suite[0]
+            suite_wanted = suite[1]
+            for num in suite_wanted:
+                wanted_card = str(num) + suite_name
+                wanted_list.append(wanted_card)
     return wanted_list
 
 
@@ -122,10 +135,10 @@ def my_first_move(top_card: str, hand: dict, cards: dict):
 
 
 # Function that checks for the least valuable card
-def least_valuable_card(hand: dict, good_cards: list) -> list:
+def least_valuable_card(hand: dict, good_cards: list, possible_cards: list) -> list:
     bad_cards = []
-    for key in hand.keys():
-        if key not in good_cards:
+    for key, value in hand.items():
+        if key not in good_cards and key not in possible_cards and value > 0:
             bad_cards.append(key)
     return bad_cards
 
@@ -134,9 +147,12 @@ def least_valuable_card(hand: dict, good_cards: list) -> list:
 def my_move(top_card: str, hand: dict, cards: dict):
 
     # see chance of getting wanted card from top and from deck
-    wanted_cards = create_wanted_list(check_possible_sequence(hand)[1])
+    possible_cards = create_wanted_list(check_possible_sequence(hand)[0], True)
+    wanted_cards = create_wanted_list(check_possible_sequence(hand)[1], False)
     if top_card in wanted_cards:
         tui.chance("getting wanted card from top", 100)
+    else:
+        tui.chance("getting wanted card from top", 0)
     wanted_cards.append("007")
     wanted_cards.append("008")
     total_chance = decision(wanted_cards, cards)
@@ -153,10 +169,10 @@ def my_move(top_card: str, hand: dict, cards: dict):
     # find out all info out the 22 cards before discarding a card
     tui.sequences(True, check_pure_sequence(hand))
     tui.sequences(False, check_possible_sequence(hand)[0])
-    good_cards = create_wanted_list(check_pure_sequence(hand))
-    bad_cards = least_valuable_card(hand, good_cards)
+    good_cards = create_wanted_list(check_pure_sequence(hand), True)
+    bad_cards = least_valuable_card(hand, good_cards, possible_cards)
     tui.bad_cards(bad_cards)
-    discard(tui.discard(), cards)
+    discard(tui.discard(), hand)
 
 
 # Function will calculate if picking top card is better than picking random card from deck
@@ -198,11 +214,11 @@ def check_possible_sequence(hand: dict) -> tuple:
         suite_sequences = []
         suite_wanted = []
         for j in suite:
-            if j + 1 in suite:
+            if j + 1 in suite and [j + 2 not in suite or j - 1 not in suite]:
                 suite_sequences.append([j, j + 1])
                 suite_wanted.append(j + 2)
                 if j - 1 > 0:
-                    suite_wanted.append([j - 1])
+                    suite_wanted.append(j - 1)
         sequences.append([suite_name, suite_sequences])
         wanted.append([suite_name, suite_wanted])
     return sequences, wanted
@@ -211,5 +227,6 @@ def check_possible_sequence(hand: dict) -> tuple:
 # Function to make other's move, returns new top card
 def others_move(cards: dict) -> str:
     card = tui.other_discard()
+    card = standard(card)
     discard(card, cards)
     return card

@@ -20,17 +20,17 @@ def run():
     process.make_hand(hand, cards)
 
     # Players now have a hand of 21
-    game_over = False
     turn_number = 1
     players, my_turn = tui.player_num()
     top_card = tui.top_card()
-    while game_over is False:
+    while True:
         if turn_number == my_turn:  # My first turn
             process.my_first_move(top_card, hand, cards)
-        if turn_number % players == my_turn and turn_number > my_turn:  # My turns after this
+        elif turn_number % players == my_turn and turn_number > my_turn:  # My turns after this
             process.my_move(top_card, hand, cards)
         else:  # Other's turn to discard cards
             top_card = process.others_move(cards)
+        turn_number += 1
 
 
 if __name__ == "__main__":

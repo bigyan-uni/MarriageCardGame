@@ -25,7 +25,7 @@ def my_action() -> str:
 def discard() -> str:
     print("Number + H♥ C♣ S♠ D♦")
     card = input("What card will you discard?")
-    return card
+    return process.standard(card)
 
 
 # TAKES USER INPUT CARD AND RETURNS STANDARDISED INPUT
@@ -80,13 +80,13 @@ def see_hand(hand: dict):
 def declare_tunnels(tunnels):
     print("!!!You have the following tunnels: !!!")
     for tunnel in tunnels:
-        print(tunnel)
+        print(tunnel * 3)
 
 
 # Returns card discarded by others
 def other_discard() -> str:
-    card_num = input("Card discarded by others: ")
-    return card_num
+    card = input("Card discarded by others: ")
+    return process.standard(card)
 
 
 # Displays sequences (pure or possible)
